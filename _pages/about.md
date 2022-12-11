@@ -8,7 +8,7 @@ redirect_from:
   - /about.html
 ---
 
-TRUONG VAN CUONG
+![](https://cuongtvee.github.io/images/ryan.jpg)
 
 Department of Computer Engineering,
 University of Information Technology,
