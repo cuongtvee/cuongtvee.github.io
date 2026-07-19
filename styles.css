@@ -61,3 +61,29 @@ a { color:inherit; text-decoration:none; }
 @media (max-width:900px) { .shell{width:min(100% - 36px,1280px)} .nav-links{display:none}.hero{grid-template-columns:1fr;padding-top:70px}.architecture{height:520px}.section-head{grid-template-columns:1fr}.research-grid{grid-template-columns:1fr}.two-column{grid-template-columns:1fr}.system-flow{overflow-x:auto;gap:30px}.contact-row{align-items:start;flex-direction:column;gap:30px}.footer span:nth-child(2){display:none} }
 @media (max-width:560px) { .nav-status{display:none}.hero{min-height:auto}.hero h1{font-size:68px}.actions{flex-direction:column}.architecture{height:420px}.chip{left:12%;top:27%;transform:scale(.75) skewY(-6deg);transform-origin:left top}.bank{display:none}.section{padding-block:82px}.section-head{margin-bottom:40px}.thesis-panel{padding:25px}.two-column{gap:48px}.system-flow{padding:25px;justify-content:flex-start}.contact{padding-block:90px}.footer{font-size:8px} }
 @media (prefers-reduced-motion:reduce) { * { animation:none!important; scroll-behavior:auto!important; transition:none!important; } }
+
+/* Profile photo mock and new public sections */
+.profile-card{position:absolute;right:24px;top:24px;width:178px;margin:0;padding:10px;background:#0b1016;border:1px solid #315261;box-shadow:0 18px 45px #0009;z-index:4}
+.portrait-placeholder{height:204px;display:grid;place-items:center;position:relative;overflow:hidden;background:linear-gradient(145deg,#122632,#0b1118)}
+.portrait-placeholder:before{content:"";position:absolute;width:94px;height:94px;border-radius:50%;top:28px;background:#213d49;border:1px solid #3b788a}
+.portrait-placeholder:after{content:"";position:absolute;width:150px;height:110px;border-radius:80px 80px 0 0;bottom:-28px;background:#19323d;border:1px solid #315d6b}
+.portrait-placeholder span{position:absolute;z-index:2;color:var(--cyan);font:700 12px "Courier New",monospace;letter-spacing:.16em;bottom:14px}
+.profile-card figcaption{display:flex;justify-content:space-between;padding-top:10px;color:#798994;font:8px "Courier New",monospace;letter-spacing:.1em}
+.profile-card figcaption b{color:var(--orange)}
+.publication-list{display:grid;gap:12px}
+.publication-item{display:grid;grid-template-columns:90px 1fr 150px;gap:30px;align-items:start;padding:30px;border:1px solid var(--line);background:var(--panel);transition:.25s}
+.publication-item:hover{border-color:#3c6572;transform:translateX(4px)}
+.publication-item>span{color:var(--orange);font:10px "Courier New",monospace;letter-spacing:.1em}
+.publication-item h3{font-size:22px;line-height:1.35;margin:0 0 12px}
+.publication-item p{color:var(--muted);line-height:1.7;margin:0}
+.publication-item b{color:var(--cyan);font:10px "Courier New",monospace;text-align:right}
+.placeholder-note{margin-top:18px;color:#64727e;font:10px "Courier New",monospace;letter-spacing:.08em}
+.project-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.project-card{min-height:340px;padding:30px;border:1px solid var(--line);background:linear-gradient(145deg,#111a23,#0d1319);display:flex;flex-direction:column}
+.project-card>span{color:var(--cyan);font:10px "Courier New",monospace}
+.project-card h3{font-size:25px;line-height:1.25;margin:70px 0 18px}
+.project-card p{color:var(--muted);line-height:1.7;margin:0}
+.project-tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:auto;padding-top:28px}
+.project-tags i{font-style:normal;color:#8fa0ad;border:1px solid var(--line);padding:7px 9px;font:9px "Courier New",monospace}
+@media(max-width:900px){.profile-card{right:18px;top:18px}.publication-item{grid-template-columns:70px 1fr}.publication-item>b{display:none}.project-grid{grid-template-columns:1fr}}
+@media(max-width:560px){.profile-card{width:132px}.portrait-placeholder{height:150px}.profile-card figcaption{display:none}.publication-item{grid-template-columns:1fr;gap:14px;padding:24px}}
