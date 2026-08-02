@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="description" content="Aptis B2 Core practice: 2,000 grammar and vocabulary questions.">
+  <title>Aptis B2 Core Practice</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div>
+    <p class="eyebrow">APTIS ESOL GENERAL</p>
+    <h1>B2 Core Practice</h1>
+  </div>
+  <button class="ghost" id="themeBtn" type="button" aria-label="Đổi giao diện">◐</button>
+</header>
+
+<main class="shell">
+  <section id="homeView">
+    <div class="hero card">
+      <div>
+        <span class="pill">2,000 QUESTIONS</span>
+        <h2>Luyện Grammar &amp; Vocabulary trực tiếp trên trình duyệt</h2>
+        <p>1,000 câu Grammar theo 17 chủ điểm B2 và 1,000 câu Vocabulary theo 5 dạng Aptis Core.</p>
+      </div>
+      <div class="hero-stat"><strong id="attemptCount">0</strong><span>lượt đã làm</span></div>
+    </div>
+
+    <div class="warning">
+      Ngân hàng hiện ở trạng thái <b>Generated QA</b>: đã kiểm tra cấu trúc và đáp án bằng máy; vẫn cần rà soát ngôn ngữ thủ công theo từng batch.
+    </div>
+
+    <section class="mode-grid" aria-label="Chọn bài luyện">
+      <button class="mode card" data-mode="core50">
+        <span>FULL CORE</span><strong>50 câu</strong><small>25 Grammar + 25 Vocabulary · 25 phút</small>
+      </button>
+      <button class="mode card" data-mode="mini10">
+        <span>QUICK PRACTICE</span><strong>10 câu</strong><small>5 Grammar + 5 Vocabulary · 6 phút</small>
+      </button>
+      <button class="mode card" data-mode="grammar25">
+        <span>GRAMMAR</span><strong>25 câu</strong><small>3 lựa chọn · 12 phút</small>
+      </button>
+      <button class="mode card" data-mode="vocab25">
+        <span>VOCABULARY</span><strong>25 câu</strong><small>5 dạng bài · 13 phút</small>
+      </button>
+    </section>
+
+    <section class="card filters">
+      <div>
+        <label for="topicSelect">Chủ điểm Grammar</label>
+        <select id="topicSelect"><option value="all">Tất cả chủ điểm</option></select>
+      </div>
+      <div>
+        <label for="difficultySelect">Độ khó</label>
+        <select id="difficultySelect"><option value="B2">B2</option><option value="all">Tất cả</option></select>
+      </div>
+    </section>
+
+    <section class="card stats">
+      <div><span>Điểm cao nhất</span><strong id="bestScore">—</strong></div>
+      <div><span>Lần gần nhất</span><strong id="lastScore">—</strong></div>
+      <div><span>Tổng câu đã làm</span><strong id="answeredTotal">0</strong></div>
+    </section>
+
+    <p class="source-links">
+      <a href="https://docs.google.com/spreadsheets/d/1q-caU7fJTgDX4LNGqanlKn3T07afwboQ4JnmrdLR-AQ/edit?usp=drivesdk" target="_blank" rel="noopener">Mở ngân hàng Google Sheet ↗</a>
+      <span>·</span>
+      <a href="https://docs.google.com/spreadsheets/d/1q-caU7fJTgDX4LNGqanlKn3T07afwboQ4JnmrdLR-AQ/edit?usp=drivesdk" target="_blank" rel="noopener">Nguồn dữ liệu ↗</a>
+    </p>
+  </section>
+
+  <section id="quizView" hidden>
+    <div class="quiz-head card">
+      <button id="exitBtn" class="ghost" type="button">← Thoát</button>
+      <div class="progress-wrap">
+        <div class="progress-label"><span id="progressText">0/0</span><span id="timer">00:00</span></div>
+        <div class="progress"><i id="progressBar"></i></div>
+      </div>
+      <button id="submitBtn" class="primary small" type="button">Nộp bài</button>
+    </div>
+
+    <div id="blockHost"></div>
+
+    <div class="nav-row">
+      <button id="prevBtn" class="secondary" type="button">← Trước</button>
+      <button id="nextBtn" class="primary" type="button">Tiếp →</button>
+    </div>
+  </section>
+
+  <section id="resultView" hidden>
+    <div class="result-hero card">
+      <p class="eyebrow">KẾT QUẢ</p>
+      <strong id="resultScore">0/0</strong>
+      <h2 id="resultPercent">0%</h2>
+      <p id="resultMessage"></p>
+    </div>
+    <div class="result-grid">
+      <div class="card"><span>Grammar</span><strong id="grammarScore">—</strong></div>
+      <div class="card"><span>Vocabulary</span><strong id="vocabScore">—</strong></div>
+      <div class="card"><span>Chưa trả lời</span><strong id="blankScore">0</strong></div>
+    </div>
+    <div class="result-actions">
+      <button class="primary" id="reviewBtn" type="button">Xem câu sai</button>
+      <button class="secondary" id="restartBtn" type="button">Làm bài mới</button>
+    </div>
+    <section id="reviewHost"></section>
+  </section>
+</main>
+
+<footer>APTIS B2 CORE PRACTICE · STATIC GITHUB PAGES APP</footer>
+<script src="data-01.js"></script>
+<script src="data-02.js"></script>
+<script src="data-03.js"></script>
+<script src="data-04.js"></script>
+<script src="data-05.js"></script>
+<script src="data-06.js"></script>
+<script src="data-07.js"></script>
+<script src="data-08.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
