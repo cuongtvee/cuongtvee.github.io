@@ -1,4 +1,5 @@
-const SHEET_URL = "https://docs.google.com/spreadsheets/d/1q-caU7fJTgDX4LNGqanlKn3T07afwboQ4JnmrdLR-AQ/edit?usp=drivesdk";
+const SHEET_URL = "https://docs.google.com/spreadsheets/d/1hZcMUOLWsljPvzbvw3LmdEaOMo5Rt_-H31sqMxppYjU/edit?usp=drivesdk";
+const REQUIRED_STATUS = "PUBLISHED_FINAL";
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
 let grammar = [], vocabulary = [], metadata = {};
@@ -10,6 +11,16 @@ function shuffle(arr) {
   return a;
 }
 function sample(arr,n) { return shuffle(arr).slice(0,Math.min(n,arr.length)); }
+function sampleUniquePrompts(arr,n) {
+  const picked=[]; const seen=new Set();
+  for(const it of shuffle(arr)){
+    const key=(it.question||it.prompt||"").trim().toLowerCase();
+    if(!key || seen.has(key)) continue;
+    seen.add(key); picked.push(it);
+    if(picked.length===n) break;
+  }
+  return picked;
+}
 function esc(s) { return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c])); }
 function getStats() { return JSON.parse(localStorage.getItem("aptisB2Stats")||'{"attempts":0,"best":null,"last":null,"answered":0}'); }
 function saveStats(x) { localStorage.setItem("aptisB2Stats",JSON.stringify(x)); updateStats(); }
@@ -37,7 +48,7 @@ function makeBlocks(mode) {
   const blocks=[];
   if(mode==="core50"||mode==="grammar25"||mode==="mini10"){
     const n=mode==="mini10"?5:25;
-    for(const it of sample(selectedGrammarPool(),n)) blocks.push({kind:"mcq",section:"Grammar",count:1,items:[it]});
+    for(const it of sampleUniquePrompts(selectedGrammarPool(),n)) blocks.push({kind:"mcq",section:"Grammar",count:1,items:[it]});
   }
   if(mode==="core50"||mode==="vocab25"){
     const bankTypes=["Synonym matching","Meaning matching","Definition matching"];
@@ -46,7 +57,7 @@ function makeBlocks(mode) {
       const g=sample(groups,1)[0]; if(g) blocks.push({kind:"bank",section:"Vocabulary",count:5,items:g});
     }
     for(const type of ["Word usage","Collocation"]){
-      for(const it of sample(vocabulary.filter(x=>x.subtype===type),5))
+      for(const it of sampleUniquePrompts(vocabulary.filter(x=>x.subtype===type),5))
         blocks.push({kind:"mcq",section:"Vocabulary",count:1,items:[it]});
     }
   }
@@ -61,7 +72,8 @@ function makeBlocks(mode) {
 function modeSeconds(mode) { return {core50:1500,mini10:360,grammar25:720,vocab25:780}[mode]; }
 function startQuiz(mode) {
   state={mode,blocks:makeBlocks(mode),index:0,answers:{},seconds:modeSeconds(mode),timer:null,submitted:false,results:null};
-  if(!state.blocks.length) return alert("Không có đủ câu theo bộ lọc hiện tại.");
+  if(totalQuestions()!==({core50:50,mini10:10,grammar25:25,vocab25:25}[mode]))
+    return alert("Không có đủ câu duy nhất theo bộ lọc hiện tại. Hãy chọn tất cả chủ điểm.");
   show("quizView"); renderBlock(); startTimer();
 }
 function totalQuestions() { return state.blocks.reduce((a,b)=>a+b.count,0); }
@@ -156,7 +168,11 @@ async function decodeEmbeddedData() {
 }
 async function init() {
   const data=await decodeEmbeddedData();
-  grammar=data.grammar; vocabulary=data.vocabulary; metadata=data.metadata;
+  metadata=data.metadata||{};
+  grammar=(data.grammar||[]).filter(x=>x.status===REQUIRED_STATUS);
+  vocabulary=(data.vocabulary||[]).filter(x=>x.status===REQUIRED_STATUS);
+  if(metadata.version!=="1.0.0" || metadata.status!==REQUIRED_STATUS || grammar.length!==1000 || vocabulary.length!==1000)
+    throw new Error("Final question bank validation failed");
   const topics=[...new Set(grammar.map(x=>x.topic))].sort();
   $("#topicSelect").insertAdjacentHTML("beforeend",topics.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join(""));
   $$(".mode").forEach(b=>b.addEventListener("click",()=>startQuiz(b.dataset.mode)));
@@ -170,4 +186,4 @@ async function init() {
   if(localStorage.getItem("aptisTheme")==="dark")document.documentElement.classList.add("dark");
   updateStats();
 }
-init().catch(err=>{console.error(err);document.body.innerHTML="<p style='padding:30px'>Không tải được ngân hàng câu hỏi. Hãy tải lại trang.</p>";});
+init().catch(err=>{console.error(err);document.body.innerHTML="<p style='padding:30px'>Không tải được ngân hàng câu hỏi FINAL. Hãy tải lại trang.</p>";});
