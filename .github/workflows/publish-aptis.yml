@@ -9,6 +9,8 @@ on:
       - scripts/build_aptis_bank_v4.py
       - scripts/build_aptis_bank_v5.py
       - aptis/app.js
+      - aptis/history-v5.js
+      - aptis/history-v5.css
       - aptis/runtime-v4.js
       - aptis/runtime-v5.js
       - aptis/index.html
