@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0f172a">
   <meta name="description" content="Aptis B2+ self-study practice with 1,000 grammar questions, 1,000 vocabulary questions and 24 full Reading mock tests.">
   <title>Aptis B2+ Practice</title>
-  <link rel="stylesheet" href="styles.css?v=4">
+  <link rel="stylesheet" href="styles.css?v=5">
 </head>
 <body>
 <header class="topbar">
@@ -14,22 +14,25 @@
     <p class="eyebrow">APTIS ESOL GENERAL · SELF-STUDY</p>
     <h1>B2+ Practice</h1>
   </div>
-  <button class="ghost" id="themeBtn" type="button" aria-label="Đổi giao diện">◐</button>
+  <div class="top-actions">
+    <button class="ghost" id="statsBtn" type="button">Thống kê</button>
+    <button class="ghost" id="themeBtn" type="button" aria-label="Đổi giao diện">◐</button>
+  </div>
 </header>
 
 <main class="shell">
   <section id="homeView">
     <div class="hero card">
       <div>
-        <span class="pill">2,696 ITEMS · LEARNING GRAPH v5</span>
+        <span class="pill"><span id="bankTotal">2.696</span> ITEMS · LEARNING GRAPH v5</span>
         <h2>Luyện Core và Reading B2–C1 trực tiếp trên trình duyệt</h2>
-        <p>1,000 câu Grammar, 1,000 câu Vocabulary và 24 bộ Reading hoàn chỉnh với 696 câu chấm điểm.</p>
+        <p><span id="bankGrammar">1.000</span> câu Grammar, <span id="bankVocabulary">1.000</span> câu Vocabulary và <span id="bankReadingTests">24</span> bộ Reading hoàn chỉnh với <span id="bankReading">696</span> câu chấm điểm.</p>
       </div>
       <div class="hero-stat"><strong id="attemptCount">0</strong><span>lượt đã làm</span></div>
     </div>
 
     <div class="warning">
-      <b>PUBLISHED_FINAL · v5.0.0.</b> Nội dung là Aptis-style tự xây dựng để ôn tập; không phải đề thi chính thức và không sao chép nguyên văn từ nguồn tham khảo.
+      <b>PUBLISHED_FINAL · Bank v5.0.0 · App v5.1.0.</b> Mỗi lần nộp bài, trình duyệt tự tạo một file JSON và lưu kết quả vào lịch sử cục bộ trên thiết bị.
     </div>
 
     <h2 class="section-label">Core: Grammar &amp; Vocabulary</h2>
@@ -65,6 +68,10 @@
       <div><span>Lần gần nhất</span><strong id="lastScore">—</strong></div>
       <div><span>Tổng câu đã làm</span><strong id="answeredTotal">0</strong></div>
     </section>
+
+    <div class="home-actions">
+      <button class="primary" type="button" onclick="document.getElementById('statsBtn').click()">Mở trang thống kê &amp; lịch sử</button>
+    </div>
 
     <p class="source-links">
       <a href="https://docs.google.com/spreadsheets/d/1Bjrp_IgqbhYdQmxF3Augs8rkHn-c4tZed-jFVqObNLI/edit?usp=drivesdk" target="_blank" rel="noopener">Mở Learning Graph v5 ↗</a>
@@ -104,13 +111,64 @@
     </div>
     <div class="result-actions">
       <button class="primary" id="reviewBtn" type="button">Xem câu sai</button>
+      <button class="secondary" id="downloadResultBtn" type="button">Tải lại JSON</button>
       <button class="secondary" id="restartBtn" type="button">Làm bài mới</button>
     </div>
     <section id="reviewHost"></section>
   </section>
+
+  <section id="statsView" hidden>
+    <div class="stats-header card">
+      <div>
+        <p class="eyebrow">THỐNG KÊ &amp; LỊCH SỬ</p>
+        <h2>Ngân hàng và tiến độ làm bài</h2>
+        <p id="overallSummary">Chưa có dữ liệu lịch sử trên thiết bị này.</p>
+        <p id="sessionLabel" class="muted"></p>
+      </div>
+      <button id="backHomeBtn" class="secondary" type="button">← Về trang luyện</button>
+    </div>
+
+    <h2 class="section-label">Quy mô ngân hàng</h2>
+    <div id="bankStatsGrid" class="metric-grid"></div>
+
+    <h2 class="section-label">Phiên học hiện tại</h2>
+    <div id="sessionStatsGrid" class="metric-grid session-grid"></div>
+
+    <section class="stats-actions card">
+      <div>
+        <h3>Xuất và quản lý dữ liệu</h3>
+        <p>Kết quả được lưu trong localStorage của trình duyệt. File JSON không được gửi lên máy chủ.</p>
+      </div>
+      <div class="button-cluster">
+        <button id="exportSessionBtn" class="primary" type="button">Export phiên hiện tại</button>
+        <button id="exportAllBtn" class="secondary" type="button">Export toàn bộ lịch sử</button>
+        <button id="clearCacheBtn" class="secondary" type="button">Xóa browser cache</button>
+        <button id="clearAllBtn" class="danger" type="button">Xóa cache &amp; lịch sử</button>
+      </div>
+    </section>
+
+    <h2 class="section-label">Số bài theo chế độ</h2>
+    <div class="table-card card">
+      <div class="table-scroll"><table><thead><tr><th>Chế độ</th><th>Số bài</th><th>Điểm TB</th><th>Số câu</th></tr></thead><tbody id="modeStatsBody"></tbody></table></div>
+    </div>
+
+    <h2 class="section-label">Tiến độ 24 bộ Reading</h2>
+    <div class="coverage-card card">
+      <div class="progress-label"><span id="readingCoverageText">Đã hoàn thành 0/24 bộ Full Reading</span></div>
+      <div class="progress"><i id="readingCoverageBar"></i></div>
+    </div>
+    <div class="table-card card">
+      <div class="table-scroll"><table><thead><tr><th>Test</th><th>Level</th><th>Số lượt</th><th>Tốt nhất</th><th>Lần gần nhất</th></tr></thead><tbody id="readingStatsBody"></tbody></table></div>
+    </div>
+
+    <h2 class="section-label">Lịch sử gần nhất</h2>
+    <div class="table-card card">
+      <div class="table-scroll"><table><thead><tr><th>Thời gian</th><th>Bài</th><th>Reading test</th><th>Kết quả</th><th>Export</th></tr></thead><tbody id="historyBody"></tbody></table></div>
+    </div>
+  </section>
 </main>
 
-<footer>APTIS B2+ PRACTICE · LEARNING GRAPH v5.0.0 · PERSONAL SELF-STUDY</footer>
-<script src="runtime-v5.js?v=1"></script>
+<footer>APTIS B2+ PRACTICE · LEARNING GRAPH v5.0.0 · APP v5.1.0 · LOCAL HISTORY</footer>
+<script src="runtime-v5.js?v=2"></script>
 </body>
 </html>
