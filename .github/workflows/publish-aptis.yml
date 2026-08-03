@@ -11,13 +11,13 @@ on:
   workflow_dispatch:
     inputs:
       sheet_id:
-        description: Google Sheets file ID
+        description: Google Sheets Learning Graph file ID
         required: true
-        default: 1hZcMUOLWsljPvzbvw3LmdEaOMo5Rt_-H31sqMxppYjU
+        default: 1GeRWLpVlBeW34EGlapJyHO6vi1yoE7Q84DgumaQx2Dg
       version:
         description: Question-bank release version
         required: true
-        default: 1.0.0
+        default: 2.0.0
       xlsx_url:
         description: Optional direct XLSX URL; leave empty to use Google Sheets export
         required: false
@@ -36,8 +36,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      SHEET_ID: ${{ inputs.sheet_id || vars.APTIS_SHEET_ID || '1hZcMUOLWsljPvzbvw3LmdEaOMo5Rt_-H31sqMxppYjU' }}
-      RELEASE_VERSION: ${{ inputs.version || '1.0.0' }}
+      SHEET_ID: ${{ inputs.sheet_id || vars.APTIS_SHEET_ID || '1GeRWLpVlBeW34EGlapJyHO6vi1yoE7Q84DgumaQx2Dg' }}
+      RELEASE_VERSION: ${{ inputs.version || '2.0.0' }}
       XLSX_URL: ${{ inputs.xlsx_url || vars.APTIS_XLSX_URL || '' }}
     steps:
       - name: Check out repository
@@ -70,7 +70,7 @@ jobs:
               raise SystemExit("Downloaded file is not an XLSX archive. Check Google Sheets sharing permissions.")
           PY
 
-      - name: Build and validate static snapshot
+      - name: Build and validate static Learning Graph snapshot
         run: |
           python scripts/build_aptis_bank.py \
             --input "${RUNNER_TEMP}/aptis-question-bank.xlsx" \
@@ -83,11 +83,19 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add aptis/data/grammar.json aptis/data/vocabulary.json aptis/data/manifest.json
+          git add \
+            aptis/data/grammar.json \
+            aptis/data/vocabulary.json \
+            aptis/data/concepts.json \
+            aptis/data/edges.json \
+            aptis/data/item_graph.json \
+            aptis/data/adaptive_rules.json \
+            aptis/data/learner_state.json \
+            aptis/data/manifest.json
           if git diff --cached --quiet; then
-            echo "Question-bank snapshot is unchanged."
+            echo "Learning Graph snapshot is unchanged."
           else
-            git commit -m "chore(aptis): publish question bank ${RELEASE_VERSION}"
+            git commit -m "chore(aptis): publish Learning Graph ${RELEASE_VERSION}"
             git push
           fi
 
