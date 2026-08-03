@@ -6,21 +6,23 @@ on:
     paths:
       - .github/workflows/publish-aptis.yml
       - scripts/build_aptis_bank.py
+      - scripts/build_aptis_bank_v4.py
       - aptis/app.js
+      - aptis/runtime-v4.js
       - aptis/index.html
       - aptis/styles.css
   workflow_dispatch:
     inputs:
       sheet_id:
-        description: Google Sheets Learning Graph file ID
+        description: Public Google Sheets Learning Graph file ID
         required: true
-        default: 1R8Gg8of2uZnp7xYPIIWFfH5CpADR5_cYQYSgT8zKxg0
+        default: 1JStevkoPtjIqjgOvyUhndKZDDIIu2pwpphJzTKoSpPA
       version:
         description: Question-bank release version
         required: true
-        default: 3.0.0
+        default: 4.0.0
       xlsx_url:
-        description: Optional public or pre-signed XLSX URL; leave empty to export Google Sheets
+        description: Optional public or pre-signed XLSX URL
         required: false
         default: ""
 
@@ -37,13 +39,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      SHEET_ID: ${{ inputs.sheet_id || vars.APTIS_SHEET_ID || '1R8Gg8of2uZnp7xYPIIWFfH5CpADR5_cYQYSgT8zKxg0' }}
-      RELEASE_VERSION: ${{ inputs.version || '3.0.0' }}
+      SHEET_ID: ${{ inputs.sheet_id || vars.APTIS_SHEET_ID || '1JStevkoPtjIqjgOvyUhndKZDDIIu2pwpphJzTKoSpPA' }}
+      RELEASE_VERSION: ${{ inputs.version || '4.0.0' }}
       XLSX_URL: ${{ inputs.xlsx_url || vars.APTIS_XLSX_URL || '' }}
       GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.APTIS_GOOGLE_SERVICE_ACCOUNT_JSON }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -63,7 +67,6 @@ jobs:
           set -euo pipefail
           TARGET="${RUNNER_TEMP}/aptis-question-bank.xlsx"
           export TARGET
-
           python - <<'PY'
           import json
           import os
@@ -76,70 +79,47 @@ jobs:
           target = Path(os.environ["TARGET"])
           sheet_id = os.environ["SHEET_ID"].strip()
           xlsx_url = os.environ.get("XLSX_URL", "").strip()
-          service_account_json = os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON", "").strip()
-          xlsx_mime = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-
-          def save_response(response: requests.Response, source: str) -> None:
-              try:
-                  response.raise_for_status()
-              except requests.HTTPError as exc:
-                  body = response.text[:500].replace("\n", " ")
-                  raise SystemExit(
-                      f"Failed to download workbook from {source}: "
-                      f"HTTP {response.status_code}. Response: {body}"
-                  ) from exc
-              target.write_bytes(response.content)
+          secret = os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON", "").strip()
+          mime = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 
           if xlsx_url:
-              print("Downloading workbook from XLSX_URL.")
+              print("Downloading workbook from XLSX_URL")
               response = requests.get(xlsx_url, timeout=120, allow_redirects=True)
-              save_response(response, "XLSX_URL")
-          elif service_account_json:
-              print("Exporting private Google Sheet with service-account authentication.")
-              try:
-                  service_account_info = json.loads(service_account_json)
-              except json.JSONDecodeError as exc:
-                  raise SystemExit(
-                      "GitHub secret APTIS_GOOGLE_SERVICE_ACCOUNT_JSON is not valid JSON."
-                  ) from exc
-
+          elif secret:
+              print("Exporting Google Sheet with service-account authentication")
               credentials = service_account.Credentials.from_service_account_info(
-                  service_account_info,
+                  json.loads(secret),
                   scopes=["https://www.googleapis.com/auth/drive.readonly"],
               )
-              session = AuthorizedSession(credentials)
-              export_url = f"https://www.googleapis.com/drive/v3/files/{sheet_id}/export"
-              response = session.get(
-                  export_url,
-                  params={"mimeType": xlsx_mime},
+              response = AuthorizedSession(credentials).get(
+                  f"https://www.googleapis.com/drive/v3/files/{sheet_id}/export",
+                  params={"mimeType": mime},
                   timeout=120,
               )
-              save_response(response, "Google Drive API")
           else:
-              print("No service-account secret found; trying unauthenticated Google Sheets export.")
-              public_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=xlsx"
-              response = requests.get(public_url, timeout=120, allow_redirects=True)
-              if response.status_code in (401, 403):
-                  raise SystemExit(
-                      "The Google Sheet is private. Add repository secret "
-                      "APTIS_GOOGLE_SERVICE_ACCOUNT_JSON and share the Sheet with the "
-                      "service account's client_email, or provide a public/pre-signed XLSX_URL."
-                  )
-              save_response(response, "public Google Sheets export")
-
-          size = target.stat().st_size
-          if size < 10_000:
-              raise SystemExit(f"Downloaded workbook is unexpectedly small: {size} bytes")
-          if target.read_bytes()[:2] != b"PK":
-              raise SystemExit(
-                  "Downloaded file is not an XLSX archive. Check credentials, sharing, and URL."
+              print("Exporting public Google Sheet")
+              response = requests.get(
+                  f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=xlsx",
+                  timeout=120,
+                  allow_redirects=True,
               )
+
+          if response.status_code in (401, 403):
+              raise SystemExit(
+                  "Google Sheet is not publicly readable. Set Anyone with the link → Viewer, "
+                  "or configure APTIS_GOOGLE_SERVICE_ACCOUNT_JSON."
+              )
+          response.raise_for_status()
+          target.write_bytes(response.content)
+          size = target.stat().st_size
+          if size < 10_000 or target.read_bytes()[:2] != b"PK":
+              raise SystemExit(f"Downloaded content is not a valid XLSX archive ({size} bytes)")
           print(f"Workbook downloaded successfully: {size} bytes")
           PY
 
-      - name: Build and validate static Learning Graph snapshot
+      - name: Build and validate Learning Graph v4
         run: |
-          python scripts/build_aptis_bank.py \
+          python scripts/build_aptis_bank_v4.py \
             --input "${RUNNER_TEMP}/aptis-question-bank.xlsx" \
             --output-dir aptis/data \
             --version "$RELEASE_VERSION" \
@@ -150,25 +130,13 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add \
-            aptis/data/grammar.json \
-            aptis/data/vocabulary.json \
-            aptis/data/reading-tests.json \
-            aptis/data/reading-tasks.json \
-            aptis/data/reading-units.json \
-            aptis/data/reading-items.json \
-            aptis/data/reading-manifest.json \
-            aptis/data/concepts.json \
-            aptis/data/edges.json \
-            aptis/data/item_graph.json \
-            aptis/data/adaptive_rules.json \
-            aptis/data/learner_state.json \
-            aptis/data/manifest.json
+          git add aptis/data/*.json
           if git diff --cached --quiet; then
             echo "Learning Graph snapshot is unchanged."
           else
             git commit -m "chore(aptis): publish Learning Graph ${RELEASE_VERSION}"
-            git push
+            git pull --rebase origin master
+            git push origin HEAD:master
           fi
 
       - name: Prepare site artifact
