@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#0f172a">
-  <meta name="description" content="Aptis B2+ self-study practice with 2,290 Grammar, Vocabulary and Reading items.">
+  <meta name="description" content="Aptis B2+ self-study practice with 1,000 grammar questions, 1,000 vocabulary questions and 20 full Reading mock tests.">
   <title>Aptis B2+ Practice</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=4">
 </head>
 <body>
 <header class="topbar">
@@ -21,50 +21,32 @@
   <section id="homeView">
     <div class="hero card">
       <div>
-        <span class="pill">2,290 ITEMS · LEARNING GRAPH V3</span>
-        <h2>Luyện Grammar, Vocabulary và Reading trực tiếp trên trình duyệt</h2>
-        <p>1.000 câu Grammar, 1.000 câu Vocabulary và 10 bộ Reading gồm 290 câu chấm điểm, toàn bộ từ B2 đến C1.</p>
+        <span class="pill">2,580 ITEMS · LEARNING GRAPH v4</span>
+        <h2>Luyện Core và Reading B2–C1 trực tiếp trên trình duyệt</h2>
+        <p>1,000 câu Grammar, 1,000 câu Vocabulary và 20 bộ Reading hoàn chỉnh với 580 câu chấm điểm.</p>
       </div>
       <div class="hero-stat"><strong id="attemptCount">0</strong><span>lượt đã làm</span></div>
     </div>
 
     <div class="warning">
-      <b>LEARNING GRAPH v3.0.</b> Ngân hàng này được tự xây dựng theo dạng bài Aptis ESOL General để ôn tập; không phải câu hỏi thi chính thức của British Council.
+      <b>PUBLISHED_FINAL · v4.0.0.</b> Nội dung là Aptis-style tự xây dựng để ôn tập; không phải đề thi chính thức và không sao chép nguyên văn từ nguồn tham khảo.
     </div>
 
-    <h2 class="section-label">Aptis Core</h2>
-    <section class="mode-grid" aria-label="Chọn bài Aptis Core">
-      <button class="mode card" data-mode="core50">
-        <span>FULL CORE</span><strong>50 câu</strong><small>25 Grammar + 25 Vocabulary · 25 phút</small>
-      </button>
-      <button class="mode card" data-mode="mini10">
-        <span>QUICK PRACTICE</span><strong>10 câu</strong><small>5 Grammar + 5 Vocabulary · 6 phút</small>
-      </button>
-      <button class="mode card" data-mode="grammar25">
-        <span>GRAMMAR</span><strong>25 câu</strong><small>3 lựa chọn · 12 phút</small>
-      </button>
-      <button class="mode card" data-mode="vocab25">
-        <span>VOCABULARY</span><strong>25 câu</strong><small>5 dạng bài · 13 phút</small>
-      </button>
+    <h2 class="section-label">Core: Grammar &amp; Vocabulary</h2>
+    <section class="mode-grid" aria-label="Chọn bài Core">
+      <button class="mode card" data-mode="core50"><span>FULL CORE</span><strong>50 câu</strong><small>25 Grammar + 25 Vocabulary · 25 phút</small></button>
+      <button class="mode card" data-mode="mini10"><span>QUICK PRACTICE</span><strong>10 câu</strong><small>5 Grammar + 5 Vocabulary · 6 phút</small></button>
+      <button class="mode card" data-mode="grammar25"><span>GRAMMAR</span><strong>25 câu</strong><small>3 lựa chọn · 12 phút</small></button>
+      <button class="mode card" data-mode="vocab25"><span>VOCABULARY</span><strong>25 câu</strong><small>5 dạng bài · 13 phút</small></button>
     </section>
 
-    <h2 class="section-label">Aptis Reading · B2–C1</h2>
+    <h2 class="section-label">Reading mock tests</h2>
     <section class="mode-grid reading-modes" aria-label="Chọn bài Reading">
-      <button class="mode card featured" data-mode="reading29">
-        <span>FULL READING</span><strong>29 câu</strong><small>4 phần · 35 phút</small>
-      </button>
-      <button class="mode card" data-mode="readingP1">
-        <span>PART 1</span><strong>5 câu</strong><small>Sentence comprehension · 7 phút</small>
-      </button>
-      <button class="mode card" data-mode="readingP2">
-        <span>PART 2</span><strong>10 câu</strong><small>Text cohesion · 12 phút</small>
-      </button>
-      <button class="mode card" data-mode="readingP3">
-        <span>PART 3</span><strong>7 câu</strong><small>Opinion matching · 8 phút</small>
-      </button>
-      <button class="mode card" data-mode="readingP4">
-        <span>PART 4</span><strong>7 câu</strong><small>Long text comprehension · 12 phút</small>
-      </button>
+      <button class="mode card featured" data-mode="reading29"><span>FULL READING</span><strong>29 câu</strong><small>4 phần · 35 phút</small></button>
+      <button class="mode card" data-mode="readingP1"><span>PART 1</span><strong>5 câu</strong><small>Sentence comprehension · 7 phút</small></button>
+      <button class="mode card" data-mode="readingP2"><span>PART 2</span><strong>10 câu</strong><small>Text cohesion · 12 phút</small></button>
+      <button class="mode card" data-mode="readingP3"><span>PART 3</span><strong>7 câu</strong><small>Opinion matching · 8 phút</small></button>
+      <button class="mode card" data-mode="readingP4"><span>PART 4</span><strong>7 câu</strong><small>Long-text headings · 12 phút</small></button>
     </section>
 
     <section class="card filters">
@@ -73,8 +55,8 @@
         <select id="topicSelect"><option value="all">Tất cả chủ điểm</option></select>
       </div>
       <div>
-        <label for="readingTestSelect">Bộ đề Reading</label>
-        <select id="readingTestSelect"><option value="random">Ngẫu nhiên RT01–RT10</option></select>
+        <label for="readingTestSelect">Bộ Reading</label>
+        <select id="readingTestSelect"><option value="random">Ngẫu nhiên RT01–RT20</option></select>
       </div>
     </section>
 
@@ -85,7 +67,7 @@
     </section>
 
     <p class="source-links">
-      <a href="https://docs.google.com/spreadsheets/d/1R8Gg8of2uZnp7xYPIIWFfH5CpADR5_cYQYSgT8zKxg0/edit?usp=drivesdk" target="_blank" rel="noopener">Mở ngân hàng Learning Graph v3 ↗</a>
+      <a href="https://docs.google.com/spreadsheets/d/1JStevkoPtjIqjgOvyUhndKZDDIIu2pwpphJzTKoSpPA/edit?usp=drivesdk" target="_blank" rel="noopener">Mở Learning Graph v4 ↗</a>
       <span>·</span>
       <a href="https://github.com/cuongtvee/cuongtvee.github.io/tree/master/aptis" target="_blank" rel="noopener">Mã nguồn GitHub ↗</a>
     </p>
@@ -128,7 +110,7 @@
   </section>
 </main>
 
-<footer>APTIS B2+ PRACTICE · LEARNING GRAPH v3.0 · PERSONAL SELF-STUDY</footer>
-<script src="app.js?v=8"></script>
+<footer>APTIS B2+ PRACTICE · LEARNING GRAPH v4.0.0 · PERSONAL SELF-STUDY</footer>
+<script src="runtime-v4.js?v=1"></script>
 </body>
 </html>
