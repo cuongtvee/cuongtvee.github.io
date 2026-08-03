@@ -7,7 +7,7 @@
   <meta name="description" content="Aptis B2+ self-study practice with 1,000 grammar questions, 1,000 vocabulary questions and 24 full Reading mock tests.">
   <title>Aptis B2+ Practice</title>
   <link rel="stylesheet" href="styles.css?v=5">
-  <link rel="stylesheet" href="history-v5.css?v=1">
+  <link rel="stylesheet" href="history-v5.css?v=2">
 </head>
 <body>
 <header class="topbar">
@@ -33,7 +33,7 @@
     </div>
 
     <div class="warning">
-      <b>PUBLISHED_FINAL · Bank v5.0.0 · App v5.1.0.</b> Mỗi lần nộp bài, trình duyệt tự tạo một file JSON và lưu kết quả vào lịch sử cục bộ trên thiết bị.
+      <b>PUBLISHED_FINAL · Bank v5.0.0 · App v5.2.0.</b> Khi nộp bài, kết quả được lưu vào lịch sử cục bộ. Bạn chủ động tải JSON tại trang kết quả hoặc trang thống kê.
     </div>
 
     <h2 class="section-label">Core: Grammar &amp; Vocabulary</h2>
@@ -111,10 +111,13 @@
       <div class="card"><span>Chưa trả lời</span><strong id="blankScore">0</strong></div>
     </div>
     <div class="result-actions">
-      <button class="primary" id="reviewBtn" type="button">Xem câu sai</button>
-      <button class="secondary" id="downloadResultBtn" type="button">Tải lại JSON</button>
-      <button class="secondary" id="restartBtn" type="button">Làm bài mới</button>
+      <button class="primary" id="reviewAllBtn" type="button">Xem toàn bộ bài</button>
+      <button class="secondary" id="reviewBtn" type="button">Chỉ xem câu sai</button>
+      <button class="secondary" id="retryCurrentBtn" type="button">Làm lại bài này</button>
+      <button class="secondary" id="downloadResultBtn" type="button">Tải kết quả JSON</button>
+      <button class="secondary" id="restartBtn" type="button">Chọn bài khác</button>
     </div>
+    <p id="reviewSummary" class="review-summary" aria-live="polite"></p>
     <section id="reviewHost"></section>
   </section>
 
@@ -134,6 +137,9 @@
 
     <h2 class="section-label">Phiên học hiện tại</h2>
     <div id="sessionStatsGrid" class="metric-grid session-grid"></div>
+    <div class="session-retry">
+      <button id="retrySessionWrongBtn" class="primary" type="button">Không còn câu sai trong phiên</button>
+    </div>
 
     <section class="stats-actions card">
       <div>
@@ -164,12 +170,12 @@
 
     <h2 class="section-label">Lịch sử gần nhất</h2>
     <div class="table-card card">
-      <div class="table-scroll"><table><thead><tr><th>Thời gian</th><th>Bài</th><th>Reading test</th><th>Kết quả</th><th>Export</th></tr></thead><tbody id="historyBody"></tbody></table></div>
+      <div class="table-scroll"><table><thead><tr><th>Thời gian</th><th>Bài</th><th>Reading test</th><th>Kết quả</th><th>Thao tác</th></tr></thead><tbody id="historyBody"></tbody></table></div>
     </div>
   </section>
 </main>
 
-<footer>APTIS B2+ PRACTICE · LEARNING GRAPH v5.0.0 · APP v5.1.0 · LOCAL HISTORY</footer>
-<script src="runtime-v5.js?v=2"></script>
+<footer>APTIS B2+ PRACTICE · LEARNING GRAPH v5.0.0 · APP v5.2.0 · LOCAL HISTORY</footer>
+<script src="runtime-v5.js?v=3"></script>
 </body>
 </html>
