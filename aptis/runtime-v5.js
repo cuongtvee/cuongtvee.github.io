@@ -24,6 +24,19 @@
     const history=document.createElement("script");
     history.src="./history-v5.js?v=1";
     history.onerror=()=>fail("Không tải được mô-đun lịch sử Aptis v5.1.");
+    history.onload=()=>{
+      const enhancedStart=startQuiz;
+      startQuiz=function(mode){
+        const startedAt=new Date().toISOString();
+        const initialSeconds=modeSeconds(mode);
+        const result=enhancedStart(mode);
+        state.__startedAt=startedAt;
+        state.__initialSeconds=initialSeconds;
+        state.__historySaved=false;
+        state.__resultRecord=null;
+        return result;
+      };
+    };
     document.body.appendChild(history);
   })().catch(err=>{console.error(err);fail(`Không tải được ứng dụng Aptis v5.1.<br><small>${err.message||err}</small>`);});
 })();
