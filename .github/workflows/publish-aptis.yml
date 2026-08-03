@@ -7,8 +7,10 @@ on:
       - .github/workflows/publish-aptis.yml
       - scripts/build_aptis_bank.py
       - scripts/build_aptis_bank_v4.py
+      - scripts/build_aptis_bank_v5.py
       - aptis/app.js
       - aptis/runtime-v4.js
+      - aptis/runtime-v5.js
       - aptis/index.html
       - aptis/styles.css
   workflow_dispatch:
@@ -16,11 +18,11 @@ on:
       sheet_id:
         description: Public Google Sheets Learning Graph file ID
         required: true
-        default: 1JStevkoPtjIqjgOvyUhndKZDDIIu2pwpphJzTKoSpPA
+        default: 1Bjrp_IgqbhYdQmxF3Augs8rkHn-c4tZed-jFVqObNLI
       version:
         description: Question-bank release version
         required: true
-        default: 4.0.0
+        default: 5.0.0
       xlsx_url:
         description: Optional public or pre-signed XLSX URL
         required: false
@@ -39,8 +41,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      SHEET_ID: ${{ inputs.sheet_id || vars.APTIS_SHEET_ID || '1JStevkoPtjIqjgOvyUhndKZDDIIu2pwpphJzTKoSpPA' }}
-      RELEASE_VERSION: ${{ inputs.version || '4.0.0' }}
+      SHEET_ID: ${{ inputs.sheet_id || vars.APTIS_SHEET_ID || '1Bjrp_IgqbhYdQmxF3Augs8rkHn-c4tZed-jFVqObNLI' }}
+      RELEASE_VERSION: ${{ inputs.version || '5.0.0' }}
       XLSX_URL: ${{ inputs.xlsx_url || vars.APTIS_XLSX_URL || '' }}
       GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.APTIS_GOOGLE_SERVICE_ACCOUNT_JSON }}
     steps:
@@ -117,9 +119,9 @@ jobs:
           print(f"Workbook downloaded successfully: {size} bytes")
           PY
 
-      - name: Build and validate Learning Graph v4
+      - name: Build and validate Learning Graph v5
         run: |
-          python scripts/build_aptis_bank_v4.py \
+          python scripts/build_aptis_bank_v5.py \
             --input "${RUNNER_TEMP}/aptis-question-bank.xlsx" \
             --output-dir aptis/data \
             --version "$RELEASE_VERSION" \
