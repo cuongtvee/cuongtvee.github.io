@@ -19,7 +19,7 @@ on:
         required: true
         default: 2.0.0
       xlsx_url:
-        description: Optional direct XLSX URL; leave empty to use Google Sheets export
+        description: Optional public or pre-signed XLSX URL; leave empty to export Google Sheets
         required: false
         default: ""
 
@@ -39,6 +39,7 @@ jobs:
       SHEET_ID: ${{ inputs.sheet_id || vars.APTIS_SHEET_ID || '1GeRWLpVlBeW34EGlapJyHO6vi1yoE7Q84DgumaQx2Dg' }}
       RELEASE_VERSION: ${{ inputs.version || '2.0.0' }}
       XLSX_URL: ${{ inputs.xlsx_url || vars.APTIS_XLSX_URL || '' }}
+      GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.APTIS_GOOGLE_SERVICE_ACCOUNT_JSON }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -48,26 +49,91 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install builder dependency
-        run: python -m pip install openpyxl==3.1.5
+      - name: Install builder dependencies
+        run: |
+          python -m pip install \
+            openpyxl==3.1.5 \
+            "google-auth>=2.0,<3" \
+            "requests>=2.31,<3"
 
       - name: Download source workbook
+        shell: bash
         run: |
           set -euo pipefail
-          if [[ -z "$XLSX_URL" ]]; then
-            XLSX_URL="https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=xlsx"
-          fi
           TARGET="${RUNNER_TEMP}/aptis-question-bank.xlsx"
-          curl --fail --location --retry 3 --retry-delay 2 --output "$TARGET" "$XLSX_URL"
-          TARGET="$TARGET" python - <<'PY'
+          export TARGET
+
+          python - <<'PY'
+          import json
           import os
           from pathlib import Path
 
-          path = Path(os.environ["TARGET"])
-          if path.stat().st_size < 10_000:
-              raise SystemExit(f"Downloaded workbook is unexpectedly small: {path.stat().st_size} bytes")
-          if path.read_bytes()[:2] != b"PK":
-              raise SystemExit("Downloaded file is not an XLSX archive. Check Google Sheets sharing permissions.")
+          import requests
+          from google.auth.transport.requests import AuthorizedSession
+          from google.oauth2 import service_account
+
+          target = Path(os.environ["TARGET"])
+          sheet_id = os.environ["SHEET_ID"].strip()
+          xlsx_url = os.environ.get("XLSX_URL", "").strip()
+          service_account_json = os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON", "").strip()
+          xlsx_mime = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+
+          def save_response(response: requests.Response, source: str) -> None:
+              try:
+                  response.raise_for_status()
+              except requests.HTTPError as exc:
+                  body = response.text[:500].replace("\n", " ")
+                  raise SystemExit(
+                      f"Failed to download workbook from {source}: "
+                      f"HTTP {response.status_code}. Response: {body}"
+                  ) from exc
+              target.write_bytes(response.content)
+
+          if xlsx_url:
+              print("Downloading workbook from XLSX_URL.")
+              response = requests.get(xlsx_url, timeout=120, allow_redirects=True)
+              save_response(response, "XLSX_URL")
+          elif service_account_json:
+              print("Exporting private Google Sheet with service-account authentication.")
+              try:
+                  service_account_info = json.loads(service_account_json)
+              except json.JSONDecodeError as exc:
+                  raise SystemExit(
+                      "GitHub secret APTIS_GOOGLE_SERVICE_ACCOUNT_JSON is not valid JSON."
+                  ) from exc
+
+              credentials = service_account.Credentials.from_service_account_info(
+                  service_account_info,
+                  scopes=["https://www.googleapis.com/auth/drive.readonly"],
+              )
+              session = AuthorizedSession(credentials)
+              export_url = f"https://www.googleapis.com/drive/v3/files/{sheet_id}/export"
+              response = session.get(
+                  export_url,
+                  params={"mimeType": xlsx_mime},
+                  timeout=120,
+              )
+              save_response(response, "Google Drive API")
+          else:
+              print("No service-account secret found; trying unauthenticated Google Sheets export.")
+              public_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=xlsx"
+              response = requests.get(public_url, timeout=120, allow_redirects=True)
+              if response.status_code in (401, 403):
+                  raise SystemExit(
+                      "The Google Sheet is private. Add repository secret "
+                      "APTIS_GOOGLE_SERVICE_ACCOUNT_JSON and share the Sheet with the "
+                      "service account's client_email, or provide a public/pre-signed XLSX_URL."
+                  )
+              save_response(response, "public Google Sheets export")
+
+          size = target.stat().st_size
+          if size < 10_000:
+              raise SystemExit(f"Downloaded workbook is unexpectedly small: {size} bytes")
+          if target.read_bytes()[:2] != b"PK":
+              raise SystemExit(
+                  "Downloaded file is not an XLSX archive. Check credentials, sharing, and URL."
+              )
+          print(f"Workbook downloaded successfully: {size} bytes")
           PY
 
       - name: Build and validate static Learning Graph snapshot
